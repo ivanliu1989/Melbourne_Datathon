@@ -8,4 +8,6 @@ trans <- fread('data/DSMDatathon_samplefile.txt', data.table = F, stringsAsFacto
                               'character','character','character','character','character','character','character',
                               'character','character','character','character','character','numeric','numeric',
                               'character','numeric','numeric'))
-head(trans); dim(trans)
+head(trans); dim(trans); str(trans)
+attach(trans)
+table(COUNTRY_OF_RESIDENCE_NAME)
