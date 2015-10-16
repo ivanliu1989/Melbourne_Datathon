@@ -12,4 +12,4 @@ Teams have one week to analyse a dataset and come up with exciting new insights.
 ### Thoughts
 1. If time & dates (holiday, weekday) have impacts on people's behaviour (e.g. Bet_size)
 2. If players behaviour different between different countries, event_type?
-3. If players can be segmented based on their transactions history and in turn, target the most valuable segments to BetFair.
+3. If players can be segmented based on their transactions history including (frequency, size, recency, favorates to particular events?) and in turn, target the most valuable segments to BetFair.
