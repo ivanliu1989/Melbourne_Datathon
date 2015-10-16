@@ -13,3 +13,4 @@ Teams have one week to analyse a dataset and come up with exciting new insights.
 1. If time & dates (holiday, weekday) have impacts on people's behaviour (e.g. Bet_size)
 2. If players behaviour different between different countries, event_type?
 3. If players can be segmented based on their transactions history including (frequency, size, recency, favorates to particular events?) and in turn, target the most valuable segments to BetFair.
+4. If the data is capable to segment customers into groups like (aggresive/defensive customers) and we are able to see who are always the winners/losers to gambling, also the overall profitabilities of those groups so BetFair may develop an machine learning algorithm to predict those winners behavior and then adjust the bet ratios to maximize/minimize profit/risks of each event.
