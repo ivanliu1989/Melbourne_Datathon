@@ -34,43 +34,34 @@ setnames(dt_5, names(dt_5), c('BET_ID', names(dt_5)[-1]))
 str(dt_1)
 
 # 2.2 Fix PROFIT_LOSS Calc
-dt_1[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(BID_TYP == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
-                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(BID_TYP == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 1)]
-dt_2[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(BID_TYP == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
-                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(BID_TYP == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 2)]
-dt_3[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(BID_TYP == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
-                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(BID_TYP == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 3)]
-dt_4[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(BID_TYP == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
-                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(BID_TYP == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 4)]
-dt_5[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(BID_TYP == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
-                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(BID_TYP == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 5)]
+dt_1[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 1)]
+dt_2[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 2)]
+dt_3[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 3)]
+dt_4[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 4)]
+dt_5[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+                                                   ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 5)]
 
 # 2.3 Merge Datasets
 dt <- rbind(dt_1, dt_2, dt_3, dt_4, dt_5)
 dim(dt_1); dim(dt_2); dim(dt_3); dim(dt_4); dim(dt_5); dim(dt)
-View(dt)
 
-# 2.3 Null values & Unique values
+# 2.4 Regular Expression
+dt[, c('BID_TYP', 'STATUS_ID') := list(gsub(" *$", "", BID_TYP), gsub(" *$", "", STATUS_ID))]
+str(dt)
+
+# 2.5 Null values & Unique values
 apply(dt, 2, function(x) mean(is.na(x)))
-# BET_ID              BET_TRANS_ID              MATCH_BET_ID                ACCOUNT_ID COUNTRY_OF_RESIDENCE_NAME           PARENT_EVENT_ID                  EVENT_ID 
-# 0.0000000                 0.0000000                 0.1872992                 0.0000000                 0.0000000                 0.0000000                 0.0000000 
-# MATCH                EVENT_NAME                  EVENT_DT                    OFF_DT                   BID_TYP                 STATUS_ID               PLACED_DATE 
-# 0.0000000                 0.0000000                 0.0000000                 0.0000000                 0.0000000                 0.0000000                 0.0000000 
-# TAKEN_DATE              SETTLED_DATE            CANCELLED_DATE            SELECTION_NAME          PERSISTENCE_TYPE                 BET_PRICE               PRICE_TAKEN 
-# 0.1872992                 0.0000000                 0.8182610                 0.0000000                 0.9757013                 0.0000000                 0.1872992 
-# INPLAY_BET                  BET_SIZE               PROFIT_LOSS           PROFIT_LOSS_FIX                 table_num 
-# 0.0000000                 0.0000000                 0.1881458                 0.1881458                 0.0000000
 apply(dt, 2, function(x) length(unique(x)))
-# BET_ID              BET_TRANS_ID              MATCH_BET_ID                ACCOUNT_ID COUNTRY_OF_RESIDENCE_NAME           PARENT_EVENT_ID                  EVENT_ID 
-# 2095220                   3461173                   1516071                     21020                        69                        44                        44 
-# MATCH                EVENT_NAME                  EVENT_DT                    OFF_DT                   BID_TYP                 STATUS_ID               PLACED_DATE 
-# 44                         1                        44                        44                         2                         4                    765423 
-# TAKEN_DATE              SETTLED_DATE            CANCELLED_DATE            SELECTION_NAME          PERSISTENCE_TYPE                 BET_PRICE               PRICE_TAKEN 
-# 499108                        88                    345605                        14                         2                       350                       350 
-# INPLAY_BET                  BET_SIZE               PROFIT_LOSS           PROFIT_LOSS_FIX                 table_num 
-# 2                    653641                   1136568                    795364                         5 
 
-# 2.4 Imputation
+# 2.6 Imputation
+
+
+# 2.7 Date Format Transformation
+
 
 #################
 ### 3. Output ###
