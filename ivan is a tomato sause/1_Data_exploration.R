@@ -6,7 +6,7 @@ require(data.table); require(bit64)
 #                colClasses = c('interger','interger','interger','interger','character','interger','interger',
 #                               'character','character','character','character','character','character','character',
 #                               'character','character','character','character','character','numeric','numeric',
-                              # 'character','numeric','numeric'))
+# 'character','numeric','numeric'))
 
 ####################
 ### 1. Read Data ###
@@ -50,18 +50,38 @@ dt <- rbind(dt_1, dt_2, dt_3, dt_4, dt_5)
 dim(dt_1); dim(dt_2); dim(dt_3); dim(dt_4); dim(dt_5); dim(dt)
 
 # 2.4 Regular Expression
-dt[, c('BID_TYP', 'STATUS_ID') := list(gsub(" *$", "", BID_TYP), gsub(" *$", "", STATUS_ID))]
+dt[, c('BID_TYP', 'STATUS_ID') := 
+       list(gsub(" *$", "", BID_TYP), gsub(" *$", "", STATUS_ID))]
 str(dt)
 
 # 2.5 Null values & Unique values
 apply(dt, 2, function(x) mean(is.na(x)))
+# MATCH_BET_ID
+# 0.1872992               
+# TAKEN_DATE 
+# 0.1872992 
+# CANCELLED_DATE            PERSISTENCE_TYPE 
+# 0.8182610                 0.9757013       
+# PRICE_TAKEN               PROFIT_LOSS           PROFIT_LOSS_FIX 
+# 0.1872992                 0.1881458             0.1881458 
 apply(dt, 2, function(x) length(unique(x)))
 
 # 2.6 Imputation
-
+dt[is.na(MATCH_BET_ID)]
+dt[!is.na(PERSISTENCE_TYPE)]
 
 # 2.7 Date Format Transformation
-
+dt <- as.data.frame(dt)
+dt$EVENT_DT <- strptime(dt$EVENT_DT, "%d/%m/%Y %I:%M:%S %p")
+dt$OFF_DT <- strptime(dt$OFF_DT, "%d/%m/%Y %I:%M:%S %p")
+dt$PLACED_DATE <- strptime(dt$PLACED_DATE, "%d/%m/%Y %I:%M:%S %p")
+dt$TAKEN_DATE <- strptime(dt$TAKEN_DATE, "%d/%m/%Y %I:%M:%S %p")
+dt$SETTLED_DATE <- strptime(dt$SETTLED_DATE, "%d/%m/%Y %I:%M:%S %p")
+dt$BET_PRICE <- as.numeric(dt$BET_PRICE)
+dt$PRICE_TAKEN <- as.numeric(dt$PRICE_TAKEN)
+dt$BET_SIZE <- as.numeric(dt$BET_SIZE)
+dt$PROFIT_LOSS <- as.numeric(dt$PROFIT_LOSS)
+str(dt)
 
 #################
 ### 3. Output ###
