@@ -51,3 +51,5 @@ apply(dt
 # INPLAY_BET                  BET_SIZE               PROFIT_LOSS 
 # 2                               5973                      7681
 dim(dt)
+
+## 
