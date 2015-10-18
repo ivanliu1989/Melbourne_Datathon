@@ -1,14 +1,21 @@
 setwd('/Users/ivanliu/Google Drive/Melbourne Datathon/Melbourne_Datathon')
 rm(list=ls()); gc()
 load('../Datathon_Full_Dataset/Datathon_WC_Data_Complete.RData')
+library(dplyr)
 
 ################
 ### Measures ###
 ################
+# Exclude dates 
+dt2 <- tbl_df(dt[, -c(8,9,12:15)])
+glimpse(dt2)
+distinct(dt2)
 # 1. Rate of loss | count(distinct BET_ID) group by ACCOUNT_ID, PROFIT_LOSS (-)
-loss_profit <- aggregate(PROFIT_LOSS ~ ACCOUNT_ID, data=dt, sum, na.action = na.omit)
-range(loss_profit[,2]); median(loss_profit[,2]); mean(loss_profit[,2])
-length(unique(dt$ACCOUNT_ID)); dim(loss_profit)
+dt2 %>% group_by(ACCOUNT_ID) %>% 
+    summarise(bet_num=length(unique(BET_ID)),
+              win_num=length(unique(BET_ID[PROFIT_LOSS>0])),
+              loss_num=length(unique(BET_ID[PROFIT_LOSS<0])))
+# loss_profit <- aggregate(PROFIT_LOSS ~ ACCOUNT_ID, data=dt, sum, na.action = na.omit)
 
 # 2. Prob of profit | count(distinct BET_ID) group by ACCOUNT_ID, PROFIT_LOSS (+)
 
