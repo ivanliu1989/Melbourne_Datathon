@@ -34,15 +34,15 @@ setnames(dt_5, names(dt_5), c('BET_ID', names(dt_5)[-1]))
 str(dt_1)
 
 # 2.2 Fix PROFIT_LOSS Calc
-dt_1[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+dt_1[,c('PROFIT_LOSS','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
                                                    ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 1)]
-dt_2[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+dt_2[,c('PROFIT_LOSS','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
                                                    ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 2)]
-dt_3[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+dt_3[,c('PROFIT_LOSS','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
                                                    ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 3)]
-dt_4[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+dt_4[,c('PROFIT_LOSS','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
                                                    ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 4)]
-dt_5[,c('PROFIT_LOSS_FIX','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
+dt_5[,c('PROFIT_LOSS','table_num') := list(ifelse(as.numeric(PROFIT_LOSS) > 0, ifelse(gsub(" *$", "", BID_TYP) == "B", (as.numeric(PRICE_TAKEN)-1)*as.numeric(BET_SIZE), as.numeric(BET_SIZE)),0) + 
                                                    ifelse(as.numeric(PROFIT_LOSS) < 0, ifelse(gsub(" *$", "", BID_TYP) == "L", (as.numeric(PRICE_TAKEN)-1)*-as.numeric(BET_SIZE), -as.numeric(BET_SIZE)),0), 5)]
 
 # 2.3 Merge Datasets
@@ -65,10 +65,37 @@ apply(dt, 2, function(x) mean(is.na(x)))
 # PRICE_TAKEN               PROFIT_LOSS           PROFIT_LOSS_FIX 
 # 0.1872992                 0.1881458             0.1881458 
 apply(dt, 2, function(x) length(unique(x)))
+# BET_ID              BET_TRANS_ID              MATCH_BET_ID                ACCOUNT_ID 
+# 2095220                   3461173                   1516071                     21020 
+# COUNTRY_OF_RESIDENCE_NAME           PARENT_EVENT_ID                  EVENT_ID                     MATCH 
+# 69                        44                        44                        44 
+# EVENT_NAME                  EVENT_DT                    OFF_DT                   BID_TYP 
+# 1                        44                        44                         2 
+# STATUS_ID               PLACED_DATE                TAKEN_DATE              SETTLED_DATE 
+# 4                    765423                    499108                        88 
+# CANCELLED_DATE            SELECTION_NAME          PERSISTENCE_TYPE                 BET_PRICE 
+# 345605                        14                         2                       350 
+# PRICE_TAKEN                INPLAY_BET                  BET_SIZE               PROFIT_LOSS 
+# 350                         2                    653641                   1136568 
+# PROFIT_LOSS_FIX                 table_num 
+# 1127139                         5 
 
 # 2.6 Imputation
 dt[is.na(MATCH_BET_ID)]
 dt[!is.na(PERSISTENCE_TYPE)]
+
+# median(dt2$PLACED_HR, na.rm=T)
+d <- strptime(dt$PLACED_DATE, "%d/%m/%Y %I:%M:%S %p")
+t <- dt$PLACED_DATE[is.na(d)]
+# TAKEN_DATE
+dt$TAKEN_DATE[(nchar(dt$TAKEN_DATE) <20) & (!is.na(dt$TAKEN_DATE))] <- paste0(dt$TAKEN_DATE[(nchar(dt$TAKEN_DATE) <20) & 
+                                                                                                (!is.na(dt$TAKEN_DATE))], ' 6:01:10 AM')
+# PLACED_DATE
+dt$PLACED_DATE[is.na(d)] <- paste0(dt$PLACED_DATE[is.na(d)], ' 6:00:00 AM') # PLACED_DATE
+# CANCELLED_DATE
+dt$CANCELLED_DATE[(nchar(dt$CANCELLED_DATE) <20) & (!is.na(dt$CANCELLED_DATE))] <- paste0(dt$CANCELLED_DATE[(nchar(dt$CANCELLED_DATE) <20) & 
+                                                                                                                (!is.na(dt$CANCELLED_DATE))], ' 1:45:48 PM')
+
 
 # 2.7 Date Format Transformation
 dt <- as.data.frame(dt)
@@ -81,9 +108,29 @@ dt$BET_PRICE <- as.numeric(dt$BET_PRICE)
 dt$PRICE_TAKEN <- as.numeric(dt$PRICE_TAKEN)
 dt$BET_SIZE <- as.numeric(dt$BET_SIZE)
 dt$PROFIT_LOSS <- as.numeric(dt$PROFIT_LOSS)
-str(dt)
+
+dt$PLACED_WKD <- weekdays(dt$PLACED_DATE)
+dt$PLACED_MTH <- months(dt$PLACED_DATE)
+dt$PLACED_HR <- as.numeric(format(dt$PLACED_DATE, "%H"))
+
+dt$EVENT_OFF_SEC <- as.numeric(dt$OFF_DT - dt$EVENT_DT)
+dt$EVENT_SETTLED_MIN <- as.numeric(dt$SETTLED_DATE - dt$EVENT_DT)/60
+dt$OFF_SETTLED_MIN <- as.numeric(dt$SETTLED_DATE - dt$OFF_DT)/60
+
+# 2.8 Feature Selection 
+dim(dt); head(dt)
+unique(STATUS_ID)
+# BET_TRANS_ID - Unique ID, not important
+# EVENT_NAME - Unique Name, not important 'Match Odds'
+# PROFIT_LOSS - Old Calc, remove
+dt <- dt[,-c(2,9,25)]
+str(dt); dim(dt)
+mean(is.na(dt[,15]))
+# CANCELLED_DATE 15
+# PLACED_WKD 23  PLACED_MTH 24  PLACED_HR 25
 
 #################
 ### 3. Output ###
 #################
+head(dt)
 save(dt, file = '../Datathon_Full_Dataset/Datathon_WC_Data_Complete.RData')
