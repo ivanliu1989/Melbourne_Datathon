@@ -4,6 +4,7 @@
 ## thanks to Ivan!
 rm(list = ls()); gc()
 require(data.table)
+require(bit64)
 setwd("/Volumes/Data Science/Google Drive/data_science_competition/melbourne_datathon/Melbourne_Datathon/")
 
 ##########################################################################
@@ -53,9 +54,16 @@ dt[, c('BID_TYP', 'STATUS_ID') :=
        list(gsub(" *$", "", BID_TYP), gsub(" *$", "", STATUS_ID))]
 str(dt)
 ## ivan is the data science god! #######
+rm(list = c("dt_1", "dt_2", "dt_3", "dt_4", "dt_5"))
+rm("colClasses")
 
+dt$BET_PRICE <- as.numeric(dt$BET_PRICE)
+dt$PRICE_TAKEN <- as.numeric(dt$PRICE_TAKEN)
+dt$BET_SIZE <- as.numeric(dt$BET_SIZE)
 
-dt <- data.table(dt)
+dt$WIN <- ifelse(dt$PROFIT_LOSS > 0 & (!is.na(dt$PROFIT_LOSS)), "W", "L")
+
+save(dt, file = "../Datathon_Full_Dataset/full_data.RData")
 ##########################################################################
 ## 3. inspect ############################################################
 ##########################################################################
@@ -63,7 +71,46 @@ head(dt)
 tail(dt)
 str(dt)
 dim(dt)
-# [1] 3461173      26
+# [1] 3461173      25
 
-require(sqldf)
-dt_successTrans <- sqldf("SELECT * FROM dt A JOIN dt B ON A.BET_ID = B.MATCH_BET_ID AND A.MATCH_BET_ID = B.BET_ID")
+## proportion of NAs
+apply(dt, 2, function(x) mean(is.na(x)))
+# BET_ID              BET_TRANS_ID              MATCH_BET_ID 
+# 0.0000000                 0.0000000                 0.1872992 
+# ACCOUNT_ID COUNTRY_OF_RESIDENCE_NAME           PARENT_EVENT_ID 
+# 0.0000000                 0.0000000                 0.0000000 
+# EVENT_ID                     MATCH                EVENT_NAME 
+# 0.0000000                 0.0000000                 0.0000000 
+# EVENT_DT                    OFF_DT                   BID_TYP 
+# 0.0000000                 0.0000000                 0.0000000 
+# STATUS_ID               PLACED_DATE                TAKEN_DATE 
+# 0.0000000                 0.0000000                 0.1872992 
+# SETTLED_DATE            CANCELLED_DATE            SELECTION_NAME 
+# 0.0000000                 0.8182610                 0.0000000 
+# PERSISTENCE_TYPE                 BET_PRICE               PRICE_TAKEN 
+# 0.9757013                 0.0000000                 0.1872992 
+# INPLAY_BET                  BET_SIZE               PROFIT_LOSS 
+# 0.0000000                 0.0000000                 0.1881458 
+# table_num 
+# 0.0000000 
+
+## number of unique values
+apply(dt, 2, function(x) length(unique(x)))
+# BET_ID              BET_TRANS_ID              MATCH_BET_ID 
+# 2095220                   3461173                   1516071 
+# ACCOUNT_ID COUNTRY_OF_RESIDENCE_NAME           PARENT_EVENT_ID 
+# 21020                        69                        44 
+# EVENT_ID                     MATCH                EVENT_NAME 
+# 44                        44                         1 
+# EVENT_DT                    OFF_DT                   BID_TYP 
+# 44                        44                         2 
+# STATUS_ID               PLACED_DATE                TAKEN_DATE 
+# 4                    765423                    499108 
+# SETTLED_DATE            CANCELLED_DATE            SELECTION_NAME 
+# 88                    345605                        14 
+# PERSISTENCE_TYPE                 BET_PRICE               PRICE_TAKEN 
+# 2                       350                       350 
+# INPLAY_BET                  BET_SIZE               PROFIT_LOSS 
+# 2                    653641                   1127139 
+# table_num 
+# 5 
