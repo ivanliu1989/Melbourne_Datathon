@@ -1,5 +1,5 @@
-## WILL BE BACK AFTER SHOWER
 rm(list = ls()); gc()
+require(scatterplot3d)
 load("../Datathon_Full_Dataset/subsetRateAccount_noTail.RData")
 load("../Datathon_Full_Dataset/subsetRateLoc.RData")
 ##########################################################################
@@ -24,15 +24,20 @@ hist(subsetRateAccount_noTail$CNT_L + subsetRateAccount_noTail$CNT_W) # a long t
 subsetRateAccount_noTailForKmeans <- subsetRateAccount_noTail
 subsetRateAccount_noTailForKmeans$CNT_TRANS <- subsetRateAccount_noTailForKmeans$CNT_L + subsetRateAccount_noTailForKmeans$CNT_W
 subsetRateAccount_noTailForKmeans$PROFIT_LOSS <- subsetRateAccount_noTailForKmeans$PROFIT_LOSS_L + subsetRateAccount_noTailForKmeans$PROFIT_LOSS_W
+subsetRateAccount_noTailForKmeans <- subsetRateAccount_noTailForKmeans[, !c("CNT_L", "CNT_W", "PROFIT_LOSS_L", "PROFIT_LOSS_W"), with = F]
 subsetRateAccount_noTailForKmeans <- as.data.table(cbind(ACCOUNT_ID = subsetRateAccount_noTailForKmeans$ACCOUNT_ID, scale(subsetRateAccount_noTailForKmeans[, -c(1, 2), with = F])))
 
 kmAcct.out <- kmeans(subsetRateAccount_noTailForKmeans[, -1, with = F]
-                             , 5
+                             , 3
                              , nstart = 50)
+attach(subsetRateAccount_noTailForKmeans[, -1, with = F])
 
-plot(subsetRateAccount_noTailForKmeans[, c("PROFIT_LOSS_W", "CNT_W"), with = F]
-     , col=(kmAcct.out$cluster)
-     , main="K-Means Clustering Results with K = 5", xlab="PROFIT_LOSS_W", ylab="CNT_W", pch=20, cex=2)
+scatterplot3d(subsetRateAccount_noTailForKmeans$CNT_TRANS
+              , y = subsetRateAccount_noTailForKmeans$WINRATE
+              , z = subsetRateAccount_noTailForKmeans$PROFIT_LOSS
+              , color = kmAcct.out$cluster)
+
+plot(subsetRateAccount_noTailForKmeans$PROFIT_LOSS, subsetRateAccount_noTailForKmeans$WINRATE, col = kmAcct.out$cluster)
 
 ## 1.2 LOC oriented graph
 str(subsetRateLoc)
@@ -55,17 +60,17 @@ subsetRateLocForKmeans <- subsetRateLoc
 subsetRateLocForKmeans$CNT_TRANS <- subsetRateLocForKmeans$CNT_TRANS_L + subsetRateLocForKmeans$CNT_TRANS_W
 subsetRateLocForKmeans$PROFIT_LOSS <- subsetRateLocForKmeans$PROFIT_LOSS_L + subsetRateLocForKmeans$PROFIT_LOSS_W
 subsetRateLocForKmeans <- subsetRateLocForKmeans[, !c("CNT_TRANS_L", "CNT_TRANS_W", "PROFIT_LOSS_L", "PROFIT_LOSS_W"), with = F]
-subsetRateLocForKmeans <- as.data.table(cbind(subsetRateLocForKmeans$COUNTRY_OF_RESIDENCE_NAME, scale(subsetRateLocForKmeans[, -1, with = F])))
+subsetRateLocForKmeans <- as.data.table(cbind(COUNTRY_OF_RESIDENCE_NAME = subsetRateLocForKmeans$COUNTRY_OF_RESIDENCE_NAME, scale(subsetRateLocForKmeans[, -1, with = F])))
 
-kmLocAcctTrans.out <- kmeans(subsetRateLocForKmeans[, c("CNT_TRANS_PER_ACCT", "WINRATE"), with = F]
-                             , 5
+kmLoc.out <- kmeans(subsetRateLocForKmeans[, -1, with = F]
+                             , 3
                              , nstart = 50)
 
 plot(subsetRateLocForKmeans[, c("WINRATE", "CNT_TRANS_PER_ACCT"), with = F]
-     , col=(kmLocAcctTrans.out$cluster)
+     , col=(kmLoc.out$cluster)
      , main="K-Means Clustering Results with K = 5", xlab="WINRATE", ylab="CNT_TRANS_PER_ACCT", pch=20, cex=2)
 
-##
+## 
 
 
 
