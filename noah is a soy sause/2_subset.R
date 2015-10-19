@@ -70,7 +70,14 @@ save(subsetRateAccount_noTail, file = "../Datathon_Full_Dataset/subsetRateAccoun
 ## 1.2 subset loc winrate #######
 subsetRateLoc <- subsetRateAccount_noTail %>%
     group_by(COUNTRY_OF_RESIDENCE_NAME) %>%
-    summarise(CNT_ACCOUNT = n(), CNT_TRANS_L = sum(CNT_L), CNT_TRANS_W = sum(CNT_W), PROFIT_LOSS_L = sum(PROFIT_LOSS_L), PROFIT_LOSS_W = sum(PROFIT_LOSS_W), PROFIT_LOSS_PER_ACCT = (sum(PROFIT_LOSS_L + PROFIT_LOSS_W)) / n(), WINRATE = (sum(CNT_W))/ (sum(CNT_W) + sum(CNT_L)))
+    summarise(CNT_ACCOUNT = n()
+              , CNT_TRANS_L = sum(CNT_L)
+              , CNT_TRANS_W = sum(CNT_W)
+              , PROFIT_LOSS_L = sum(PROFIT_LOSS_L)
+              , PROFIT_LOSS_W = sum(PROFIT_LOSS_W)
+              , CNT_TRANS_PER_ACCT = (sum(CNT_L + CNT_W)) / n()
+              , PROFIT_LOSS_PER_ACCT = (sum(PROFIT_LOSS_L + PROFIT_LOSS_W)) / n()
+              , WINRATE = (sum(CNT_W))/ (sum(CNT_W) + sum(CNT_L)))
 # COUNTRY_OF_RESIDENCE_NAME CNT_ACCOUNT CNT_TRANS_L CNT_TRANS_W PROFIT_LOSS_L
 # 1            United Kingdom        3686      388811      379408    -530837.51
 # 2                 Australia        1113       57090       53681    -159823.67
