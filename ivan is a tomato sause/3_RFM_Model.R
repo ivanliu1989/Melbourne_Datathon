@@ -27,7 +27,7 @@ getRFMDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="20
     print('Start getting RFM datasets, 0% Complete....')
     print(paste0('Start date: ', startDate, ' | End date: ', endDate))
     #order the dataframe by date descendingly
-    df <- df[order(df[,tDateColName],decreasing = TRUE),]
+    # df <- df[order(df[,tDateColName],decreasing = TRUE),]
     print('12.5% Complete....')
     
     #remove the record before the start data and after the end Date
