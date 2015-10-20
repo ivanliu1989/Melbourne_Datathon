@@ -37,6 +37,7 @@ getRFMDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="20
     
     #remove the rows with the duplicated IDs, and assign the df to a new df.
     newdf <- df[!duplicated(df[,tIDColName]),]
+    newdf2 <- df[!duplicated(df[,'FREQ_ID']),]
     print('37.5% Complete....')
     
     # caculate the Recency(days) to the endDate, the smaller days value means more recent
