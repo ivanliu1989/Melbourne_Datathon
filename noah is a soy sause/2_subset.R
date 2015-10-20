@@ -3,6 +3,7 @@ load("../Datathon_Full_Dataset/full_data.RData")
 
 require(data.table)
 require(dplyr)
+require(lubridate)
 ##########################################################################
 ## 1. subset #############################################################
 ##########################################################################
@@ -10,9 +11,24 @@ require(dplyr)
 length(unique(dt$ACCOUNT_ID))
 # 21020
 
-subsetCntAccount <- dt[!is.na(PROFIT_LOSS)] %>%
+subsetCntAccount <- dt[!is.na(PROFIT_LOSS)] %>% # really need to exclude P/L na?
     group_by(ACCOUNT_ID, COUNTRY_OF_RESIDENCE_NAME, WIN) %>%
-    summarise(count = n(), PROFIT_LOSS = sum(PROFIT_LOSS)/n())
+    summarise(count = n()
+              , MIN_BET_AMT = min(PRICE_TAKEN * BET_SIZE)
+              , MAX_BET_AMT = max(PRICE_TAKEN * BET_SIZE)
+              , TTL_BET_AMT = sum(PRICE_TAKEN * BET_SIZE)
+              , PROFIT_LOSS = sum(PROFIT_LOSS)/n()
+              )
+# ACCOUNT_ID
+# COUNTRY_OF_RESIDENCE_NAME
+# WIN
+# count: number of bets made (i.e. frequency of betting)
+# ? number of betting days
+# MIN_BET_AMT: minimum bet value (i.e. the lowest amount bet by a player in a single betting session)
+# MAX_BET_AMT: maximum bet value (i.e. the highest amount bet by a player in a single betting session)
+# TTL_BET_AMT: total bet value (i.e. the cumulative amount bet by a player)
+# ? the date of the first bet and last bet made by each bettor
+# PROFIT_LOSS
 
 dim(subsetCntAccount)[1]
 # 35386
