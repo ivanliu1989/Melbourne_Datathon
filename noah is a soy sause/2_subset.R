@@ -3,6 +3,7 @@ load("../Datathon_Full_Dataset/full_data.RData")
 
 require(data.table)
 require(dplyr)
+require(lubridate)
 ##########################################################################
 ## 1. subset #############################################################
 ##########################################################################
@@ -10,9 +11,24 @@ require(dplyr)
 length(unique(dt$ACCOUNT_ID))
 # 21020
 
-subsetCntAccount <- dt[!is.na(PROFIT_LOSS)] %>%
+subsetCntAccount <- dt[!is.na(PROFIT_LOSS)] %>% # really need to exclude P/L na?
     group_by(ACCOUNT_ID, COUNTRY_OF_RESIDENCE_NAME, WIN) %>%
-    summarise(count = n(), PROFIT_LOSS = sum(PROFIT_LOSS)/n())
+    summarise(count = n()
+              , MIN_BET_AMT = min(PRICE_TAKEN * BET_SIZE)
+              , MAX_BET_AMT = max(PRICE_TAKEN * BET_SIZE)
+              , TTL_BET_AMT = sum(PRICE_TAKEN * BET_SIZE)
+              , PROFIT_LOSS = sum(PROFIT_LOSS)/n()
+              )
+# ACCOUNT_ID
+# COUNTRY_OF_RESIDENCE_NAME
+# WIN
+# count: number of bets made (i.e. frequency of betting)
+# ? number of betting days
+# MIN_BET_AMT: minimum bet value (i.e. the lowest amount bet by a player in a single betting session)
+# MAX_BET_AMT: maximum bet value (i.e. the highest amount bet by a player in a single betting session)
+# TTL_BET_AMT: total bet value (i.e. the cumulative amount bet by a player)
+# ? the date of the first bet and last bet made by each bettor
+# PROFIT_LOSS
 
 dim(subsetCntAccount)[1]
 # 35386
@@ -70,7 +86,14 @@ save(subsetRateAccount_noTail, file = "../Datathon_Full_Dataset/subsetRateAccoun
 ## 1.2 subset loc winrate #######
 subsetRateLoc <- subsetRateAccount_noTail %>%
     group_by(COUNTRY_OF_RESIDENCE_NAME) %>%
-    summarise(CNT_ACCOUNT = n(), CNT_TRANS_L = sum(CNT_L), CNT_TRANS_W = sum(CNT_W), PROFIT_LOSS_L = sum(PROFIT_LOSS_L), PROFIT_LOSS_W = sum(PROFIT_LOSS_W), PROFIT_LOSS_PER_ACCT = (sum(PROFIT_LOSS_L + PROFIT_LOSS_W)) / n(), WINRATE = (sum(CNT_W))/ (sum(CNT_W) + sum(CNT_L)))
+    summarise(CNT_ACCOUNT = n()
+              , CNT_TRANS_L = sum(CNT_L)
+              , CNT_TRANS_W = sum(CNT_W)
+              , PROFIT_LOSS_L = sum(PROFIT_LOSS_L)
+              , PROFIT_LOSS_W = sum(PROFIT_LOSS_W)
+              , CNT_TRANS_PER_ACCT = (sum(CNT_L + CNT_W)) / n()
+              , PROFIT_LOSS_PER_ACCT = (sum(PROFIT_LOSS_L + PROFIT_LOSS_W)) / n()
+              , WINRATE = (sum(CNT_W))/ (sum(CNT_W) + sum(CNT_L)))
 # COUNTRY_OF_RESIDENCE_NAME CNT_ACCOUNT CNT_TRANS_L CNT_TRANS_W PROFIT_LOSS_L
 # 1            United Kingdom        3686      388811      379408    -530837.51
 # 2                 Australia        1113       57090       53681    -159823.67

@@ -1,6 +1,6 @@
 ################################################################################
 # Function
-# 	getDataFrame(df,startDate,endDate,tIDColName="ID",tDateColName="Date",tAmountColName="Amount")
+# 	getRFMDataFrame(df,startDate,endDate,tIDColName="ID",tDateColName="Date",tAmountColName="Amount")
 #
 # Description
 #	Process the input data frame of transcation records so that the data frame can be ready for RFM scoring.
@@ -21,37 +21,50 @@
 #	Returns a new data frame with three new columns of "Recency","Frequency", and "Monetary". The number in "Recency" is the quantity of days from the # #most recent transcation of a customer to the endDate; The number in the "Frequency" is the quantity of transcations of a customer during the period from # #startDate to endDate; the number in the "Monetary" is the average amount of money per transcation of a customer during that period.
 #
 #################################################################################
-getDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="2015-03-21 07:33:44 AEDT",tIDColName="ACCOUNT_ID",tDateColName="PLACED_DATE",tAmountColName="PROFIT_LOSS"){
+getRFMDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="2015-03-21 07:33:44 AEDT",tIDColName="ACCOUNT_ID",
+                         tDateColName="PLACED_DATE",tAmountColName="amounts"){
     
+    print('Start getting RFM datasets, 0% Complete....')
+    print(paste0('Start date: ', startDate, ' | End date: ', endDate))
     #order the dataframe by date descendingly
-    df <- df[order(df[,tDateColName],decreasing = TRUE),]
+    # df <- df[order(df[,tDateColName],decreasing = TRUE),]
+    print('12.5% Complete....')
     
     #remove the record before the start data and after the end Date
     df <- df[df[,tDateColName]>= startDate,]
     df <- df[df[,tDateColName]<= endDate,]
+    print('25% Complete....')
     
     #remove the rows with the duplicated IDs, and assign the df to a new df.
     newdf <- df[!duplicated(df[,tIDColName]),]
+    newdf2 <- df[!duplicated(df[,'FREQ_ID']),]
+    print('37.5% Complete....')
     
     # caculate the Recency(days) to the endDate, the smaller days value means more recent
     Recency<-as.numeric(difftime(endDate,newdf[,tDateColName],units="days"))
+    print('50% Complete....')
     
     # add the Days column to the newdf data frame
     newdf <-cbind(newdf,Recency)
+    print('62.5% Complete....')
     
     #order the dataframe by ID to fit the return order of table() and tapply()
     newdf <- newdf[order(newdf[,tIDColName]),]
+    print('75% Complete....')
     
     # caculate the frequency
     fre <- as.data.frame(table(df[,tIDColName]))
     Frequency <- fre[,2]
     newdf <- cbind(newdf,Frequency)
+    print('87.5% Complete....')
     
     #caculate the Money per deal
-    m <- as.data.frame(tapply(df[,tAmountColName],df[,tIDColName],sum))
+    m <- as.data.frame(tapply(df[,tAmountColName],df[,tIDColName],sum, na.rm=T))
     Monetary <- m[,1]/Frequency
     newdf <- cbind(newdf,Monetary)
+    print('100% Complete.... Return dataset')
     
+    newdf$LAST_DATE <- endDate
     return(newdf)
     
 } # end of function getDataFrame
@@ -59,7 +72,7 @@ getDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="2015-
 
 ################################################################################
 # Function
-# 	getIndependentScore(df,r=5,f=5,m=5)
+# 	getRFMIndependentScore(df,r=5,f=5,m=5)
 #
 # Description
 #	Scoring the Recency, Frequency, and Monetary in r, f, and m in aliquots independently
@@ -74,7 +87,7 @@ getDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="2015-
 #	Returns a new data frame with four new columns of "R_Score","F_Score","M_Score", and "Total_Score".
 #################################################################################
 
-getIndependentScore <- function(df,r=5,f=5,m=5) {
+getRFMIndependentScore <- function(df,r=5,f=5,m=5) {
     
     if (r<=0 || f<=0 || m<=0) return
     
@@ -105,7 +118,7 @@ getIndependentScore <- function(df,r=5,f=5,m=5) {
 
 ################################################################################
 # Function
-# 	scoring(df,column,r=5)
+# 	scoringRFM(df,column,r=5)
 #
 # Description
 #	A function to be invoked by the getIndepandentScore function
@@ -181,7 +194,7 @@ scoring <- function (df,column,r=5){
 #
 #################################################################################
 
-getScoreWithBreaks <- function(df,r,f,m) {
+getScoreWithBreaks <- function(df,r=5,f=5,m=5) {
     
     ## scoring the Recency
     len = length(r)

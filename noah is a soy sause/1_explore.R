@@ -5,6 +5,7 @@
 rm(list = ls()); gc()
 require(data.table)
 require(bit64)
+require(lubridate)
 setwd("/Volumes/Data Science/Google Drive/data_science_competition/melbourne_datathon/Melbourne_Datathon/")
 
 ##########################################################################
@@ -60,6 +61,10 @@ rm("colClasses")
 dt$BET_PRICE <- as.numeric(dt$BET_PRICE)
 dt$PRICE_TAKEN <- as.numeric(dt$PRICE_TAKEN)
 dt$BET_SIZE <- as.numeric(dt$BET_SIZE)
+
+d <- strptime(dt$PLACED_DATE, "%d/%m/%Y %I:%M:%S %p")
+dt$PLACED_DATE[is.na(d)] <- paste0(dt$PLACED_DATE[is.na(d)], ' 6:00:00 AM') # PLACED_DATE
+dt <- dt[, PLACED_DATE := parse_date_time(PLACED_DATE, "d!m*!Y! IM!S!")]
 
 dt$WIN <- ifelse(dt$PROFIT_LOSS > 0 & (!is.na(dt$PROFIT_LOSS)), "W", "L")
 
