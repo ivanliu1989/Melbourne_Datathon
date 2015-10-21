@@ -13,15 +13,20 @@ dtAcctClusters <- KmeansClusters(dt = dtAcctScale
                                  , nstart = 50)
 
 dtAcctClusters[, CLUSTER := ifelse(dtAcctClusters$CLUSTER == 1, "a. Strong but Simple"
-                                   , ifelse(dtAcctClusters$CLUSTER == 2, "b. Frequent and Reactive"
+                                   , ifelse(dtAcctClusters$CLUSTER == 2, "b. Frequent and Careful"
                                             , ifelse(dtAcctClusters$CLUSTER == 3, "c. Fast then Win!"
-                                                     , ifelse(dtAcctClusters$CLUSTER == 4, "d. Casual and Hesitate", "NA")
+                                                     , ifelse(dtAcctClusters$CLUSTER == 4, "d. Casual and Bold", "NA")
                                             )
                                    )
 )]
 dim(dtAcctClusters)
 
 dtClusters <- SummariseClusters(dtAcctClusters)
+dtCountClusters <- dtAcctClusters %>%
+    group_by(CLUSTER) %>%
+    summarise(CNT = n())
+
+dtCountClusters
 
 ## 1.2 plot
 ## melt
