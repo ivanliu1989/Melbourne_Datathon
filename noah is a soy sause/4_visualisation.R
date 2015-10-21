@@ -46,6 +46,20 @@ gSummary <- gSummary + ggtitle("Betor Cluster Profiles")
 gSummary <- gSummary + facet_grid(CLUSTER ~.)
 gSummary
 
+## 1.3 heatmap
+gHeat <- ggplot(dfMeltAcctClusters, aes(x = variable, y = CLUSTER))
+gHeat <- gHeat + geom_tile(aes(fill = value))
+gHeat <- gHeat + scale_fill_gradient(low = "white", high = "red")
+gHeat <- gHeat + theme_bw()
+gHeat <- gHeat + xlab("Dimension")
+gHeat <- gHeat + ylab("Cluster")
+gHeat <- gHeat + ggtitle("Betor Cluster Profiles Heatmap")
+gHeat <- gHeat + theme(axis.text.x = element_text(angle = 45, hjust = 1)
+                       , plot.title = element_text(lineheight=.8, face="bold")
+                       , legend.position="left")
+gHeat <- gHeat + guides(fill=guide_legend(title = "Cluster"))
+gHeat
+
 ## 2.1 run the cluster with Hierachical clustering
 set.seed(2)
 dtAcctClusters_hc <- HierClusters(dt = dtAcctScale
