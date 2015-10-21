@@ -19,33 +19,34 @@ dt$PROFIT_LOSS[is.na(dt$PROFIT_LOSS)] <- 0
 # basic account oriented subset
 subsetAcct <- dt %>%
     group_by(ACCOUNT_ID, COUNTRY_OF_RESIDENCE_NAME) %>%
-    summarise(TTL_NO_OF_TRANS = n()
-              , AVG_NO_OF_TRANS_PER_BET = n() / n_distinct(BET_ID)
-              , AVG_NO_OF_TRANS_PER_MATCH = n() / n_distinct(MATCH)
+    summarise(
+              # TTL_NO_OF_TRANS = n()
+              AVG_NO_OF_TRANS_PER_BET = n() / n_distinct(BET_ID)
+              # , AVG_NO_OF_TRANS_PER_MATCH = n() / n_distinct(MATCH)
               
-              , TTL_NO_OF_BETS = n_distinct(BET_ID)
+              # , TTL_NO_OF_BETS = n_distinct(BET_ID)
               , AVG_NO_OF_BETS_PER_MATCH = n_distinct(BET_ID) / n_distinct(MATCH)
               
               , TTL_NO_OF_MATCH = n_distinct(MATCH)
               
-              , MIN_EXP_WIN = min(EXP_PROFIT_LOSS_W)
-              , MAX_EXP_WIN = max(EXP_PROFIT_LOSS_W)
-              , TTL_EXP_WIN = sum(EXP_PROFIT_LOSS_W)
+              # , MIN_EXP_WIN = min(EXP_PROFIT_LOSS_W)
+              # , MAX_EXP_WIN = max(EXP_PROFIT_LOSS_W)
+              # , TTL_EXP_WIN = sum(EXP_PROFIT_LOSS_W)
               
               , AVG_EXP_WIN_PER_TRAN = sum(EXP_PROFIT_LOSS_W) / n()
-              , AVG_EXP_WIN_PER_BET = sum(EXP_PROFIT_LOSS_W) / n_distinct(BET_ID)
-              , AVG_EXP_WIN_PER_MATCH = sum(EXP_PROFIT_LOSS_W) / n_distinct(MATCH)
+              # , AVG_EXP_WIN_PER_BET = sum(EXP_PROFIT_LOSS_W) / n_distinct(BET_ID)
+              # , AVG_EXP_WIN_PER_MATCH = sum(EXP_PROFIT_LOSS_W) / n_distinct(MATCH)
               
-              , MIN_EXP_LOSS = min(EXP_PROFIT_LOSS_L)
-              , MAX_EXP_LOSS = max(EXP_PROFIT_LOSS_L)
-              , TTL_EXP_LOSS = sum(EXP_PROFIT_LOSS_L)
+              # , MIN_EXP_LOSS = min(EXP_PROFIT_LOSS_L)
+              # , MAX_EXP_LOSS = max(EXP_PROFIT_LOSS_L)
+              # , TTL_EXP_LOSS = sum(EXP_PROFIT_LOSS_L)
               
               , AVG_EXP_LOSS_PER_TRAN = sum(EXP_PROFIT_LOSS_L) / n()
-              , AVG_EXP_LOSS_PER_BET = sum(EXP_PROFIT_LOSS_L) / n_distinct(BET_ID)
-              , AVG_EXP_LOSS_PER_MATCH = sum(EXP_PROFIT_LOSS_L) / n_distinct(MATCH)
+              # , AVG_EXP_LOSS_PER_BET = sum(EXP_PROFIT_LOSS_L) / n_distinct(BET_ID)
+              # , AVG_EXP_LOSS_PER_MATCH = sum(EXP_PROFIT_LOSS_L) / n_distinct(MATCH)
               
-              , TTL_PROFIT_LOSS = sum(PROFIT_LOSS)
-              , AVG_TTL_PROFIT_LOSS_PER_TRAN = sum(PROFIT_LOSS) / n()
+              # , TTL_PROFIT_LOSS = sum(PROFIT_LOSS)
+              # , AVG_TTL_PROFIT_LOSS_PER_TRAN = sum(PROFIT_LOSS) / n()
               , AVG_TTL_PROFIT_LOSS_PER_BET = sum(PROFIT_LOSS) / n_distinct(BET_ID)
               , AVG_TTL_PROFIT_LOSS_PER_MATCH = sum(PROFIT_LOSS) / n_distinct(MATCH)
               
@@ -91,12 +92,25 @@ str(subsetAcct)
 # $ AVG_RATE_WIN_PER_MATCH       : num  157.79 5.65 3.88 1.03 7.86 ...
 
 ## first bet placers per MATCH
-tempSubAcct[i] <- dt %>%
+tempSubAcct <- dt %>%
     group_by(MATCH, ACCOUNT_ID) %>%
     summarise(MIN_PLCAED_DT_PER_MATCH = min(PLACED_DATE)) %>%
     group_by(MATCH) %>%
     mutate(rank = rank(MIN_PLCAED_DT_PER_MATCH)) %>%
     filter(rank <= ceiling(n_distinct(ACCOUNT_ID) * .05))
+
+tempSubAcctTopPlacer <- tempSubAcct %>%
+    group_by(ACCOUNT_ID) %>%
+    summarise(TOP = n())
+
+subsetAcct <- merge(x = subsetAcct
+                            , y = tempSubAcctTopPlacer
+                            , all.x = T
+                            , by = "ACCOUNT_ID")
+
+subsetAcct$TOP[is.na(subsetAcct$TOP)] <- 0
+
+## left join the basic one
 
 dim(subsetAcct)[1]
 # 21020
