@@ -1,5 +1,6 @@
 rm(list = ls()); gc()
 require(data.table)
+require(dplyr)
 load("../Datathon_Full_Dataset/subsetAcct.RData")
 ##########################################################################
 ## 1. model ##############################################################
@@ -37,13 +38,81 @@ str(subsetAcct)
 # $ AVG_RATE_WIN_PER_MATCH       : num  157.79 5.65 3.88 1.03 7.86 ...
 
 # standardization
-dtAcctScale <- as.data.table(cbind(ACCOUNT_ID = subsetAcct$ACCOUNT_ID, scale(subsetAcct[, c(-1, -2), with = F])))
+dtAcctScale <- scale(subsetAcct[, c(-1, -2), with = F])
+apply(dtAcctScale, 2, class)
 
-# modelling with Kmeans
+dtAcctScale <- as.data.table(dtAcctScale)
+dtAcctScale <- cbind(ACCOUNT_ID = subsetAcct$ACCOUNT_ID, dtAcctScale)
+dim(dtAcctScale)
+
+# generic function for summarising the clusters
+SummariseClusters <- function(dt){
+    dtClusters <- dt %>%
+        group_by(CLUSTER) %>%
+        summarise(AVG_NO_TRANS_PER_TRANS = mean(TTL_NO_OF_TRANS)
+                  , AVG_NO_OF_TRANS_PER_BET = mean(AVG_NO_OF_TRANS_PER_BET)
+                  , AVG_NO_OF_TRANS_PER_MATCH = mean(AVG_NO_OF_TRANS_PER_MATCH)
+                  
+                  , AVG_NO_OF_BETS = mean(TTL_NO_OF_BETS)
+                  , AVG_NO_OF_BETS_PER_MATCH = mean(AVG_NO_OF_BETS_PER_MATCH)
+                  
+                  , AVG_NO_OF_MATCH = mean(TTL_NO_OF_MATCH)
+                  
+                  , AVG_MIN_EXP_WIN = mean(MIN_EXP_WIN)
+                  , AVG_MAX_EXP_WIN = mean(MAX_EXP_WIN)
+                  , AVG_TTL_EXP_WIN = mean(TTL_EXP_WIN)
+                  
+                  , AVG_EXP_WIN_PER_TRAN = mean(AVG_EXP_WIN_PER_TRAN)
+                  , AVG_EXP_WIN_PER_BET = mean(AVG_EXP_WIN_PER_BET)
+                  , AVG_EXP_WIN_PER_MATCH = mean(AVG_EXP_WIN_PER_MATCH)
+                  
+                  , AVG_MIN_EXP_LOSS = mean(MIN_EXP_LOSS)
+                  , AVG_MAX_EXP_LOSS = mean(MAX_EXP_LOSS)
+                  , AVG_TTL_EXP_LOSS = mean(TTL_EXP_LOSS)
+                  
+                  , AVG_EXP_LOSS_PER_TRAN = mean(AVG_EXP_LOSS_PER_TRAN)
+                  , AVG_EXP_LOSS_PER_BET = mean(AVG_EXP_LOSS_PER_BET)
+                  , AVG_EXP_LOSS_PER_MATCH = mean(AVG_EXP_LOSS_PER_MATCH)
+                  
+                  , AVG_PROFIT_LOSS = mean(TTL_PROFIT_LOSS)
+                  , AVG_TTL_PROFIT_LOSS_PER_TRAN = mean(AVG_TTL_PROFIT_LOSS_PER_TRAN)
+                  , AVG_TTL_PROFIT_LOSS_PER_BET = mean(AVG_TTL_PROFIT_LOSS_PER_BET)
+                  , AVG_TTL_PROFIT_LOSS_PER_MATCH = mean(AVG_TTL_PROFIT_LOSS_PER_MATCH)
+                  
+                  , AVG_RATE_CANCEL = mean(TTL_RATE_CANCEL)
+                  , AVG_RATE_CANCEL_PER_BET = mean(AVG_RATE_CANCEL_PER_BET)
+                  , AVG_RATE_CANCEL_PER_MATCH = mean(AVG_RATE_CANCEL_PER_MATCH)
+                  
+                  , AVG_RATE_WIN = mean(TTL_RATE_WIN)
+                  , AVG_RATE_WIN_PER_BET = mean(AVG_RATE_WIN_PER_BET)
+                  , AVG_RATE_WIN_PER_MATCH = mean(AVG_RATE_WIN_PER_MATCH)
+        )
+}
+## modelling with Kmeans
 KmeansClusters <- function(dt, k = 3, nstart = 50){
-    kmAcct.out <- kmeans(dt, k, nstart)
+    kmAcct.out <- kmeans(dt, 3, nstart = 50)
+    dtCombined <- cbind(dt, CLUSTER = kmAcct.out$cluster)
     
+    dtCombined <- as.data.table(dtCombined)
+    dtClusters <- SummariseClusters(dtCombined)
+    
+    return(dtClusters)
+}
+
+## modelling with Hierachical Clustering
+HierClusters <- function(dt, k = 2, method){
+    hc <- hclust(dist(dt), method = "complete")
+    hcAcc.out <- cutree(hc, k)
+    dtCombined <- cbind(dt, CLUSTER = hcAcc.out)
+    
+    dtCombined <- as.data.table(dtCombined)
+    dtClusters <- SummariseClusters(dtCombined)
+    
+    return(dtClusters)
 }
 
 
-head(kmAcct.out$cluster)
+
+
+
+

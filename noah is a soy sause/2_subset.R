@@ -12,7 +12,7 @@ length(unique(dt$ACCOUNT_ID))
 
 # any unmatched or cancelled P/L are set to 0
 dt[, EXP_PROFIT_LOSS_W := ifelse(BID_TYP == "B", (BET_PRICE - 1) * BET_SIZE, BET_SIZE)]
-dt[, EXP_PROFIT_LOSS_L := ifelse(BID_TYP == "L", -1 * (BET_PRICE - 1) * BET_SIZE, -1 * BET_SIZE)]
+dt[, EXP_PROFIT_LOSS_L := ifelse(BID_TYP == "L", (BET_PRICE - 1) * BET_SIZE, BET_SIZE)]
 
 dt$PROFIT_LOSS[is.na(dt$PROFIT_LOSS)] <- 0
 
@@ -33,7 +33,7 @@ subsetAcct <- dt %>%
               , TTL_EXP_WIN = sum(EXP_PROFIT_LOSS_W)
               
               , AVG_EXP_WIN_PER_TRAN = sum(EXP_PROFIT_LOSS_W) / n()
-              , AVG_EXP_WIN_BET = sum(EXP_PROFIT_LOSS_W) / n_distinct(BET_ID)
+              , AVG_EXP_WIN_PER_BET = sum(EXP_PROFIT_LOSS_W) / n_distinct(BET_ID)
               , AVG_EXP_WIN_PER_MATCH = sum(EXP_PROFIT_LOSS_W) / n_distinct(MATCH)
               
               , MIN_EXP_LOSS = min(EXP_PROFIT_LOSS_L)
@@ -99,7 +99,7 @@ tempSubAcct[i] <- dt %>%
     filter(rank <= ceiling(n_distinct(ACCOUNT_ID) * .05))
 
 dim(subsetAcct)[1]
-# 36051
+# 21020
 
 save(subsetAcct, file = "../Datathon_Full_Dataset/subsetAcct.RData")
 
