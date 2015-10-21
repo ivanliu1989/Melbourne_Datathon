@@ -53,7 +53,7 @@ getRFMDataFrame <- function(df,startDate="2014-12-16 15:55:43 AEDT" ,endDate="20
     print('75% Complete....')
     
     # caculate the frequency
-    fre <- as.data.frame(table(df[,tIDColName]))
+    fre <- as.data.frame(table(newdf2[,tIDColName]))
     Frequency <- fre[,2]
     newdf <- cbind(newdf,Frequency)
     print('87.5% Complete....')

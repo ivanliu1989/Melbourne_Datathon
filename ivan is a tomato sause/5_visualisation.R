@@ -4,12 +4,13 @@ load('../Datathon_Full_Dataset/Datathon_WC_Data_Complete.RData')
 load('data/ivan_rfm/RFM_all.RData')
 ls()
 
+install.packages('googleVis')
 library(googleVis)
 dat_all$LAST_DATE <- as.Date(dat_all$LAST_DATE, '%Y-%m-%d')
-data_all <- aggregate(ACCOUNT_ID ~ ACCOUNT_ID, data=dt, sum, na.action = na.omit)
+# data_all <- aggregate(ACCOUNT_ID ~ ACCOUNT_ID, data=dt, sum, na.action = na.omit)
 
 dat_all <- dat_all[,-c(2,8:10)]
-Motion=gvisMotionChart(data = dat_all[1:100,], idvar="ACCOUNT_ID", timevar="LAST_DATE",
+Motion=gvisMotionChart(data = dat_all[1:10000,], idvar="ACCOUNT_ID", timevar="LAST_DATE",
                        xvar='Monetary', yvar='Frequency',
                        sizevar='R_Score', 
                        colorvar="R_Score",  # RFM segments / Country
