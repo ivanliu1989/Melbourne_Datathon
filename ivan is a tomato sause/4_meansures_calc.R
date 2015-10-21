@@ -53,6 +53,10 @@ save(dat, file='data/ivan_rfm/SEG_list.RData')
 # 9. Try Person 
 # 4309                                        
 
+dt2 <- merge(dt, seg_list, all.x = T)
+table(dt2[,'rfm'])
+dt2$trans_amounts <- dt2$BET_SIZE * dt2$BET_PRICE
+aggregate(trans_amounts ~ rfm, data=dt2, sum, na.action = na.omit)
 # dat_all <- c()
 # for (d in as.character(dates)){
 #     newDF <- getRFMDataFrame(dt2, startDate=strptime(d,"%Y-%m-%d")-6*24*3600, endDate=strptime(d,"%Y-%m-%d"), tIDColName="ACCOUNT_ID", tDateColName="TRANSACTION_DATE", tAmountColName="amounts")
