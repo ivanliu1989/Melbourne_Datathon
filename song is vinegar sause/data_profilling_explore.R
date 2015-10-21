@@ -1,4 +1,4 @@
-setwd('C:/Users/InfoCentric/desktop/datathon/datathon full dataset')
+
 library(sqldf)
 library(data.table)
 library(gdata)
